@@ -49,7 +49,7 @@ function AuthPage() {
     setBusy(true);
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -58,6 +58,11 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        if (!data.session) {
+          setAwaitingConfirm(true);
+          toast.success("Account created — check your email to confirm it.");
+          return;
+        }
         toast.success("Account created. Welcome to OpportunityHub!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -65,6 +70,7 @@ function AuthPage() {
         toast.success("Signed in");
       }
       navigate({ to: "/dashboard", replace: true });
+
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
