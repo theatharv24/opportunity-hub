@@ -14,7 +14,163 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      applications: {
+        Row: {
+          cover_note: string | null
+          created_at: string
+          id: string
+          opportunity_id: string
+          resume_url: string | null
+          status: Database["public"]["Enums"]["application_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cover_note?: string | null
+          created_at?: string
+          id?: string
+          opportunity_id: string
+          resume_url?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cover_note?: string | null
+          created_at?: string
+          id?: string
+          opportunity_id?: string
+          resume_url?: string | null
+          status?: Database["public"]["Enums"]["application_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "applications_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      opportunities: {
+        Row: {
+          apply_url: string | null
+          company: string
+          compensation: string | null
+          created_at: string
+          created_by: string | null
+          deadline: string | null
+          description: string | null
+          id: string
+          is_remote: boolean
+          location: string | null
+          logo_url: string | null
+          tags: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["opportunity_type"]
+        }
+        Insert: {
+          apply_url?: string | null
+          company: string
+          compensation?: string | null
+          created_at?: string
+          created_by?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          is_remote?: boolean
+          location?: string | null
+          logo_url?: string | null
+          tags?: string[] | null
+          title: string
+          type: Database["public"]["Enums"]["opportunity_type"]
+        }
+        Update: {
+          apply_url?: string | null
+          company?: string
+          compensation?: string | null
+          created_at?: string
+          created_by?: string | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          is_remote?: boolean
+          location?: string | null
+          logo_url?: string | null
+          tags?: string[] | null
+          title?: string
+          type?: Database["public"]["Enums"]["opportunity_type"]
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          full_name: string | null
+          headline: string | null
+          id: string
+          resume_url: string | null
+          skills: string[] | null
+          university: string | null
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          headline?: string | null
+          id: string
+          resume_url?: string | null
+          skills?: string[] | null
+          university?: string | null
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          full_name?: string | null
+          headline?: string | null
+          id?: string
+          resume_url?: string | null
+          skills?: string[] | null
+          university?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      saved_opportunities: {
+        Row: {
+          created_at: string
+          id: string
+          opportunity_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          opportunity_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          opportunity_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_opportunities_opportunity_id_fkey"
+            columns: ["opportunity_id"]
+            isOneToOne: false
+            referencedRelation: "opportunities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +179,13 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      application_status:
+        | "applied"
+        | "in_review"
+        | "interview"
+        | "offer"
+        | "rejected"
+      opportunity_type: "internship" | "job" | "freelance" | "hackathon"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +312,15 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      application_status: [
+        "applied",
+        "in_review",
+        "interview",
+        "offer",
+        "rejected",
+      ],
+      opportunity_type: ["internship", "job", "freelance", "hackathon"],
+    },
   },
 } as const
