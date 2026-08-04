@@ -1,16 +1,10 @@
-import { createClient } from "@supabase/supabase-js";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { supabase as generatedClient } from "@/integrations/supabase/client";
 
-// Publishable (client-safe) credentials for the OpportunityHub Supabase project.
-export const SUPABASE_URL = "https://iubqolpcuizwmngbkmev.supabase.co";
-export const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_GJFMStuGPauyEIfudXzfog_fEbg0V2K";
-
-export const supabase = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    detectSessionInUrl: true,
-  },
-});
+// Backed by Lovable Cloud. The generated client owns the credentials; this module
+// re-exports it (untyped against generated Database types, which lag behind
+// migrations) plus the app's domain types.
+export const supabase = generatedClient as unknown as SupabaseClient;
 
 export type OpportunityType = "internship" | "job" | "freelance" | "hackathon";
 
