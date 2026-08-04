@@ -39,6 +39,8 @@ function AuthPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
+  const [awaitingConfirm, setAwaitingConfirm] = useState(false);
+
 
   useEffect(() => {
     if (!loading && user) navigate({ to: "/dashboard", replace: true });
@@ -49,7 +51,7 @@ function AuthPage() {
     setBusy(true);
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -58,6 +60,11 @@ function AuthPage() {
           },
         });
         if (error) throw error;
+        if (!data.session) {
+          setAwaitingConfirm(true);
+          toast.success("Account created — check your email to confirm it.");
+          return;
+        }
         toast.success("Account created. Welcome to OpportunityHub!");
       } else {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
@@ -65,6 +72,7 @@ function AuthPage() {
         toast.success("Signed in");
       }
       navigate({ to: "/dashboard", replace: true });
+
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -84,7 +92,28 @@ function AuthPage() {
           </span>
         </Link>
 
+        {awaitingConfirm ? (
+          <div className="surface-card mt-6 p-7">
+            <h1 className="text-2xl font-semibold">Confirm your email</h1>
+            <p className="mt-2 text-sm text-muted-foreground">
+              We sent a confirmation link to <span className="font-medium text-foreground">{email}</span>.
+              Click it to activate your account, then come back and sign in.
+            </p>
+            <Button
+              variant="outline"
+              className="mt-6 w-full"
+              size="lg"
+              onClick={() => {
+                setAwaitingConfirm(false);
+                setIsSignUp(false);
+              }}
+            >
+              Back to sign in
+            </Button>
+          </div>
+        ) : (
         <div className="surface-card mt-6 p-7">
+
           <h1 className="text-2xl font-semibold">
             {isSignUp ? "Create your account" : "Welcome back"}
           </h1>
@@ -148,6 +177,8 @@ function AuthPage() {
             </button>
           </p>
         </div>
+        )}
+
       </div>
     </div>
   );

@@ -1,8 +1,3 @@
--- OpportunityHub — full schema for the Supabase project
--- Project: https://supabase.com/dashboard/project/iubqolpcuizwmngbkmev
--- Run this once in the Supabase SQL editor (Dashboard → SQL → New query → Run).
--- It is idempotent: safe to re-run.
-
 create extension if not exists "pgcrypto";
 
 do $$ begin
@@ -13,7 +8,6 @@ do $$ begin
   create type public.application_status as enum ('applied','in_review','interview','offer','rejected');
 exception when duplicate_object then null; end $$;
 
--- ---------------------------------------------------------------- profiles
 create table if not exists public.profiles (
   id uuid primary key references auth.users(id) on delete cascade,
   full_name text,
@@ -51,7 +45,6 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created after insert on auth.users
 for each row execute function public.handle_new_user();
 
--- ----------------------------------------------------------- opportunities
 create table if not exists public.opportunities (
   id uuid primary key default gen_random_uuid(),
   title text not null,
@@ -88,7 +81,6 @@ create policy "Owners update opportunities" on public.opportunities for update t
 drop policy if exists "Owners delete opportunities" on public.opportunities;
 create policy "Owners delete opportunities" on public.opportunities for delete to authenticated using (auth.uid() = created_by);
 
--- ----------------------------------------------------- saved_opportunities
 create table if not exists public.saved_opportunities (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -110,7 +102,6 @@ create policy "Users create own saves" on public.saved_opportunities for insert 
 drop policy if exists "Users delete own saves" on public.saved_opportunities;
 create policy "Users delete own saves" on public.saved_opportunities for delete to authenticated using (auth.uid() = user_id);
 
--- ------------------------------------------------------------ applications
 create table if not exists public.applications (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references auth.users(id) on delete cascade,
@@ -139,12 +130,6 @@ create policy "Users update own applications" on public.applications for update 
 drop policy if exists "Users delete own applications" on public.applications;
 create policy "Users delete own applications" on public.applications for delete to authenticated using (auth.uid() = user_id);
 
--- ---------------------------------------------------------------- storage
-insert into storage.buckets (id, name, public) values ('resumes', 'resumes', false)
-on conflict (id) do nothing;
-insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true)
-on conflict (id) do nothing;
-
 drop policy if exists "Avatars are public" on storage.objects;
 create policy "Avatars are public" on storage.objects for select using (bucket_id = 'avatars');
 
@@ -158,7 +143,6 @@ create policy "Users manage own resume" on storage.objects for all to authentica
 using (bucket_id = 'resumes' and (storage.foldername(name))[1] = auth.uid()::text)
 with check (bucket_id = 'resumes' and (storage.foldername(name))[1] = auth.uid()::text);
 
--- ------------------------------------------------------------- seed data
 insert into public.opportunities (title, company, type, location, is_remote, compensation, description, tags, apply_url, deadline)
 select * from (values
   ('Frontend Engineering Intern','Linear','internship'::public.opportunity_type,'San Francisco, CA',true,'$45/hr','Work with the design engineering team on the core issue tracker UI. You will ship real features to production in your first two weeks.',array['React','TypeScript','UI'],'https://linear.app/careers',current_date + 30),
