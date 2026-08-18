@@ -46,6 +46,25 @@ function AuthPage() {
     if (!loading && user) navigate({ to: "/dashboard", replace: true });
   }, [loading, user, navigate]);
 
+  async function onForgotPassword() {
+    if (!email) {
+      toast.error("Enter your email first, then tap the reset link.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/reset-password`,
+      });
+      if (error) throw error;
+      toast.success("Password reset link sent — check your email.");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not send the reset email");
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
@@ -165,6 +184,19 @@ function AuthPage() {
               {isSignUp ? "Create account" : "Sign in"}
             </Button>
           </form>
+
+          {!isSignUp && (
+            <p className="mt-3 text-center text-sm">
+              <button
+                type="button"
+                onClick={onForgotPassword}
+                disabled={busy}
+                className="text-muted-foreground hover:text-foreground hover:underline"
+              >
+                Forgot your password?
+              </button>
+            </p>
+          )}
 
           <p className="mt-5 text-center text-sm text-muted-foreground">
             {isSignUp ? "Already have an account?" : "New to OpportunityHub?"}{" "}
