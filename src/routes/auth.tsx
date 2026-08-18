@@ -166,6 +166,19 @@ function AuthPage() {
             </Button>
           </form>
 
+          {!isSignUp && (
+            <p className="mt-3 text-center text-sm">
+              <button
+                type="button"
+                onClick={onForgotPassword}
+                disabled={busy}
+                className="text-muted-foreground hover:text-foreground hover:underline"
+              >
+                Forgot your password?
+              </button>
+            </p>
+          )}
+
           <p className="mt-5 text-center text-sm text-muted-foreground">
             {isSignUp ? "Already have an account?" : "New to OpportunityHub?"}{" "}
             <button
